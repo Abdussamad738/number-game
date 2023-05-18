@@ -1,6 +1,7 @@
 import React, { useState,useRef } from 'react';
 import { useDrag, useDrop,DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+// import { HTML5Backend } from 'react-dnd-html5-backend';
+import { TouchBackend } from 'react-dnd-touch-backend';
 import './App.css';
 const initialMatrix = [
   [1, 2, 3, 4],
@@ -11,7 +12,15 @@ const initialMatrix = [
 
 const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
   const monitorRef = useRef(null); // Create a ref to store the monitor
-  console.log("inside emptymatrixcell",rowIndex,colIndex,value);
+  const interactionRef = useRef(false); // Create a ref to track interaction (mouse or touch)
+
+  const handleInteractionStart = () => {
+    interactionRef.current = true; // Set the interaction flag to true
+  };
+
+  const handleInteractionEnd = () => {
+    interactionRef.current = false; // Set the interaction flag to false
+  };
 
   const [{ canDrop, isOver }, drop] = useDrop({
     accept: 'MATRIX_CELL',
@@ -29,13 +38,13 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
       const sourceColIndex = item.colIndex;
       const targetRowIndex = rowIndex;
       const targetColIndex = colIndex;
-    
+
       // Ensure dragging within the same matrix
       if (sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) return;
-    
-       // Move the item only when it is dropped (unclicked)
-       if (monitorRef.current.didDrop()) return;
-    
+
+      // Move the item only when it is dropped (interaction ended)
+      if (!interactionRef.current || monitorRef.current.didDrop()) return;
+
       moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex);
     }
   });
@@ -51,7 +60,17 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
   }; 
 
   return (
-    <td ref={drop} style={cellStyle}>
+    <td
+      ref={(node) => {
+        drop(node);
+        // Attach event listeners to track interaction (mouse or touch)
+        node?.addEventListener('mousedown', handleInteractionStart);
+        node?.addEventListener('touchstart', handleInteractionStart);
+        node?.addEventListener('mouseup', handleInteractionEnd);
+        node?.addEventListener('touchend', handleInteractionEnd);
+      }}
+      style={cellStyle}
+    >
       {value !== null && <span>{value}</span>}
     </td>
   );
@@ -106,35 +125,36 @@ const Matrix = () => {
     }
     return rows;
   });
-  const handleDrop = (sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex) => {
-    console.log("handledrop:",sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex)
-    if (emptyMatrix[targetRowIndex][targetColIndex] !== null) {
-      console.log("inside handle drop,source and target is :",sourceRowIndex, sourceColIndex,emptyMatrix[targetRowIndex][targetColIndex],targetRowIndex,targetColIndex);
-      // If the target cell is not empty, cancel the drop
-      return;
-    }
-
-    moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex);
-  };
+  // const handleDrop = (sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex) => {
+  //   console.log("within handledrop, and the value in emptymatrix is:",emptyMatrix[targetRowIndex][targetColIndex]);
+  //   if (emptyMatrix[targetRowIndex][targetColIndex] !== null) {
+  //     // If the target cell is not empty, cancel the drop
+      
+  //     return;
+  //   }
+  
+  //   moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex);
+  // };
 
 
   const moveItem = (sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex) => {
     const updatedMatrix = matrix.map((row) => [...row]);
     const updatedEmptyMatrix = emptyMatrix.map((row) => [...row]);
     const sourceValue = updatedMatrix[sourceRowIndex][sourceColIndex];
-    // Remove the number from the source matrix
-  updatedMatrix[sourceRowIndex][sourceColIndex] = null;
 
-  // Insert the number into the target matrix
-  updatedEmptyMatrix[targetRowIndex][targetColIndex] = sourceValue;
-  console.log(sourceValue)
+    if (updatedEmptyMatrix[targetRowIndex][targetColIndex] !== null) {
+      return; // If the target cell is not empty, cancel the drop
+    }
 
-  setMatrix(updatedMatrix);
-  setEmptyMatrix(updatedEmptyMatrix);
+    updatedMatrix[sourceRowIndex][sourceColIndex] = null;
+    updatedEmptyMatrix[targetRowIndex][targetColIndex] = sourceValue;
+
+    setMatrix(updatedMatrix);
+    setEmptyMatrix(updatedEmptyMatrix);
   };
   
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
       <div className="matrix-container">
         <div className="matrix">
           <table>
@@ -167,7 +187,7 @@ const Matrix = () => {
                       value={value}
                       rowIndex={rowIndex}
                       colIndex={colIndex}
-                      moveItem={handleDrop}
+                      moveItem={moveItem}
                     />
                   </td>
                 ))}
