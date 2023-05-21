@@ -22,8 +22,34 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
     interactionRef.current = false; // Set the interaction flag to false
   };
 
+  const [{ isDragging }, drag] = useDrag({
+    
+    type: 'EMPTY_MATRIX_CELL',
+    item: { sourceIndices: { rowIndex, colIndex }, isFromEmptyMatrix: true }, // Set isFromEmptyMatrix to true
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging()
+      
+    }),
+    end: (item, monitor) => {
+      const didDrop = monitor.didDrop();
+      if (didDrop) {
+        // Handle the case where the item was dropped on a valid target
+        const { sourceIndices } = item;
+        const { rowIndex: sourceRowIndex, colIndex: sourceColIndex } = sourceIndices;
+        const { rowIndex: targetRowIndex, colIndex: targetColIndex } = monitor.getDropResult();
+        console.log("from didDrop :",sourceRowIndex,sourceColIndex, targetRowIndex, targetColIndex)
+        moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex, true);
+      } else {
+        // Handle the case where the item was not dropped on a valid target
+        const { sourceIndices } = item;
+        const { rowIndex: sourceRowIndex, colIndex: sourceColIndex } = sourceIndices;
+        moveItem(sourceRowIndex, sourceColIndex, null, null, true);
+      }
+    }
+  });
+
   const [{ canDrop, isOver }, drop] = useDrop({
-    accept: 'MATRIX_CELL',
+    accept: ['MATRIX_CELL', 'EMPTY_MATRIX_CELL'],
     drop: () => ({ rowIndex, colIndex }),
     collect: (monitor) => {
       monitorRef.current = monitor; // Store the monitor in the ref
@@ -32,20 +58,21 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
         isOver: monitor.isOver()
       };
     },
-    hover: () => {
-      const item = monitorRef.current.getItem();
-      const sourceRowIndex = item.rowIndex;
-      const sourceColIndex = item.colIndex;
+    hover: (_, monitor) => {
+      const item = monitor.getItem();
+      const sourceRowIndex = item.sourceIndices?.rowIndex; // Update to use optional chaining (?.)
+      const sourceColIndex = item.sourceIndices?.colIndex; // Update to use optional chaining (?.)
       const targetRowIndex = rowIndex;
       const targetColIndex = colIndex;
-
+      // console.log(item)
+    
       // Ensure dragging within the same matrix
       if (sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) return;
-
+    
       // Move the item only when it is dropped (interaction ended)
-      if (!interactionRef.current || monitorRef.current.didDrop()) return;
-
-      moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex);
+      if (!interactionRef.current || monitor.didDrop()) return;
+    
+      moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex, item.isFromEmptyMatrix);
     }
   });
 
@@ -59,6 +86,14 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
     width: '100px'
   }; 
 
+ 
+
+  const cellWrapperStyle = {
+    opacity: isDragging ? 0.5 : 1,
+    display: 'inline-block',
+    cursor: 'move'
+  };
+
   return (
     <td
       ref={(node) => {
@@ -71,7 +106,9 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
       }}
       style={cellStyle}
     >
-      {value !== null && <span>{value}</span>}
+      <div ref={drag} style={cellWrapperStyle}>
+        {value !== null && <span>{value}</span>}
+      </div>
     </td>
   );
 };
@@ -137,18 +174,30 @@ const Matrix = () => {
   // };
 
 
-  const moveItem = (sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex) => {
+  const moveItem = (sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex, isFromEmptyMatrix) => {
     const updatedMatrix = matrix.map((row) => [...row]);
     const updatedEmptyMatrix = emptyMatrix.map((row) => [...row]);
-    const sourceValue = updatedMatrix[sourceRowIndex][sourceColIndex];
-
-    if (updatedEmptyMatrix[targetRowIndex][targetColIndex] !== null) {
-      return; // If the target cell is not empty, cancel the drop
+    const sourceValue = isFromEmptyMatrix ? updatedEmptyMatrix[sourceRowIndex][sourceColIndex] : updatedMatrix[sourceRowIndex][sourceColIndex];
+  
+    // Remove the number from the source matrix or empty matrix based on isFromEmptyMatrix
+    if (isFromEmptyMatrix) {
+      console.log("from moveitem :",sourceValue)
+      updatedEmptyMatrix[sourceRowIndex][sourceColIndex] = null;
+    } else {
+      console.log("from moveitem else:",sourceValue)
+      
+      updatedMatrix[sourceRowIndex][sourceColIndex] = null;
     }
-
-    updatedMatrix[sourceRowIndex][sourceColIndex] = null;
-    updatedEmptyMatrix[targetRowIndex][targetColIndex] = sourceValue;
-
+  
+    if (targetRowIndex !== null && targetColIndex !== null) {
+      // Insert the number into the target matrix
+      if (isFromEmptyMatrix) {
+        updatedEmptyMatrix[targetRowIndex][targetColIndex] = sourceValue ;
+      } else {
+        updatedEmptyMatrix[targetRowIndex][targetColIndex] = sourceValue;
+      }
+    }
+  
     setMatrix(updatedMatrix);
     setEmptyMatrix(updatedEmptyMatrix);
   };
@@ -184,7 +233,7 @@ const Matrix = () => {
                 {row.map((value, colIndex) => (
                   <td key={colIndex}style={{ width:'100px',height: '75px' }}>
                     <EmptyMatrixCell
-                      value={value}
+                      value={value}  // Pass the value from emptyMatrix
                       rowIndex={rowIndex}
                       colIndex={colIndex}
                       moveItem={moveItem}
