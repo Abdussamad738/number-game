@@ -13,6 +13,41 @@
   }
 }
 
+
+
+#tsparticles{
+  position: absolute ;
+  top: 0;
+  right: 0;
+  opacity: 2;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  z-index: -1;
+}
+   
+.container {
+  position: relative;
+  width: 100%; /* Adjust as needed */
+  height: 100%; /* Adjust as needed */
+}
+
+.canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* .canvas-element {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+} */
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -39,22 +74,47 @@
 
 
 .matrix-container {
-  background-color: aquamarine;
+  background-color: #212524af;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 80%;
+  width: 80%;
+  margin-top: 10%;
+  margin-left: 5%;
 }
 
+.matrix .dropped {
+  background-color: #333; /* Set the desired background color for dropped cells */
+   /* Set the desired font color for dropped cells */
+}
+.timer{
+  position: relative;
+  font-style: italic;
+  font-size: large;
+  font-weight: 300;
+  color: #86431c;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
 .matrix {
-  background-color: azure;
   display: grid;
+  background-color: #96a6ab78;
+  color: #282c34;
   /* grid-template-columns: repeat(4, 1fr); */
-  gap: 1px;
-  height: 30%;
-  width: 30%;
+  grid-gap: 1px;
+  margin: 5px 5px 5px 5px;
+  border-radius: 5px;
+  /* height: 50%;
+  width: 30%; */
 }
 
+.matrix table {
+  border-collapse: collapse;
+}
+
+.matrix td {
+  padding: 10px;
+}
 .row {
   display: grid;
   /* grid-template-columns: repeat(4, 1fr); */
@@ -63,10 +123,21 @@
 
 .empty-matrix{
   display: grid;
-  background-color: #dee5e7;
-  color: #282c34;
+  background-color: #384042b4;
+  color: #aaafbb;
+  border-radius: 5px;
   /* grid-template-columns: repeat(4, 1fr); */
   grid-gap: 1px;
-  height: 30%;
-  width: 30%;
+  margin: 5px 5px 5px 5px;
+  /* height: 30%;
+  width: 30%; */
+}
+
+.empty-matrix table {
+  border-collapse: collapse;
+}
+
+.empty-matrix td {
+  padding: 10px;
+  background-color: #506b65;
 }
