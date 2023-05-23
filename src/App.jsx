@@ -144,8 +144,8 @@ const MatrixCell = ({ value, rowIndex, colIndex, moveItem }) => {
     opacity: isDragging ? 0.5 : 1,
     fontWeight: 'normal',
     cursor: 'move',
-    height: '25px',
-    width: '30px',
+    height: '35px',
+    width: '35px',
     borderRadius: '8px',
     background: '#333',
     color: '#fff',
@@ -331,13 +331,15 @@ const Matrix = () => {
 
   return (
     <div className="container">
-      <div className="canvas-container">
-      <Particles init={particlesInit} options={particlesOptions} />
-      </div>
-    <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
+      <p className='title'>Drag the numbers from the first matrix to the second matrix. The goal is to arrange the numbers in such a way that the sum of each row, column, and diagonal in the second matrix should be equal to <span className="number">34</span>.
+      </p>
       
+    <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
+    <Particles init={particlesInit} options={particlesOptions} />
       <div className="matrix-container">
+      
         <div className="matrix">
+        
           <table>
             <tbody>
               {matrix.map((row, rowIndex) => (
