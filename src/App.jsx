@@ -47,7 +47,6 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
         const { sourceIndices } = item;
         const { rowIndex: sourceRowIndex, colIndex: sourceColIndex } = sourceIndices;
         const { rowIndex: targetRowIndex, colIndex: targetColIndex } = monitor.getDropResult();
-        console.log("from didDrop :",sourceRowIndex,sourceColIndex, targetRowIndex, targetColIndex)
         moveItem(sourceRowIndex, sourceColIndex, targetRowIndex, targetColIndex, true);
       } else {
         // Handle the case where the item was not dropped on a valid target
@@ -74,7 +73,7 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
       const sourceColIndex = item.sourceIndices?.colIndex; // Update to use optional chaining (?.)
       const targetRowIndex = rowIndex;
       const targetColIndex = colIndex;
-      // console.log(item)
+     
     
       // Ensure dragging within the same matrix
       if (sourceRowIndex === targetRowIndex && sourceColIndex === targetColIndex) return;
@@ -90,7 +89,7 @@ const EmptyMatrixCell = ({ rowIndex, colIndex, moveItem, value }) => {
   const isTargetColumn = isOver && monitorRef.current.getItem().colIndex === colIndex; // Access the monitor from the ref
   const cellStyle = {
     backgroundColor: isActive ? 'lightblue' : '#333',
-    cursor: 'move',
+    cursor: 'grab',
     borderTop: isTargetColumn ? '2px solid red' : '',
     height: '25px',
     width: '30px',
@@ -143,7 +142,7 @@ const MatrixCell = ({ value, rowIndex, colIndex, moveItem }) => {
   const cellStyle = {
     opacity: isDragging ? 0.5 : 1,
     fontWeight: 'normal',
-    cursor: 'move',
+    cursor: 'grab',
     height: '35px',
     width: '35px',
     borderRadius: '8px',
@@ -190,17 +189,15 @@ const Matrix = () => {
   
     // Remove the number from the source matrix or empty matrix based on isFromEmptyMatrix
     if (isFromEmptyMatrix) {
-      console.log("from moveitem :",sourceValue)
       updatedEmptyMatrix[sourceRowIndex][sourceColIndex] = null;
     } else {
       
-      console.log("from moveitem else:",sourceValue)
+      
       
       updatedMatrix[sourceRowIndex][sourceColIndex] = null;
       if (!timer) {
         const interval = setInterval(() => {
           setTimer((prevTimer) => prevTimer + 1);
-          console.log("after settimer")
         }, 1000);
   
         
@@ -294,7 +291,6 @@ const Matrix = () => {
     if (rowSums.every((sum) => sum === 34) && columnSums.every((sum) => sum === 34) && diagonalSum === 34) {
       // All sums are equal to 34, display 'Won' prompt
       // setIsWon(true);
-      console.log("from if condition before confetti")
       const elRef = document.getElementById("exampleModal");
 
       /// Triger modal
@@ -403,8 +399,8 @@ const Matrix = () => {
               <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Congratss!!!!!</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="exampleModalLabel">Congratss🎉🎊</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"onClick={restartPage}></button>
                   </div>
                   {/* <div class="modal-body">
                     ...
