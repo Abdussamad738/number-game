@@ -2,6 +2,19 @@
 
 https://matrixpuzzle.vercel.app/
 
+# Matrix Puzzle
+
+Welcome to the Matrix Puzzle challenge! This intriguing puzzle requires you to rearrange numbers in a limited grid to achieve specific sums [34] in rows, columns, and diagonals. Engage your logic skills to strategically solve this challenge and uncover the secret arrangement!
+
+## How to Play
+
+1. **Objective:** Rearrange the numbers in the grid to meet the target sums in each row, column, and diagonal.
+
+2. **Grid Constraints:** The puzzle is constrained by a limited grid size, adding an extra layer of complexity to your strategic thinking.
+
+3. **Logic Skills:** Exercise your logical reasoning to find the optimal arrangement that satisfies all sum requirements.
+
+4. **Challenge Yourself:** Each puzzle presents a unique arrangement, providing a continuous challenge for your problem-solving abilities.
 
 # Getting Started with Create React App
 
